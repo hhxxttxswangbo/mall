@@ -5,9 +5,11 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <!-- 第一个:banners是HomeSwiper（子组件） props中的名字，第二个banners是Home(父组件)中data的banners -->
     <home-swiper :banners="banners" />
     <recommend-view :recommends="recommends" />
     <feature-view />
+    <tab-control class="tab-control" :titles="['流行','新款','精选']" />
 
     <ul>
       <li>列表1</li>
@@ -115,10 +117,13 @@
 </template>
 
 <script>
-import NavBar from "components/common/navbar/NavBar";
 import HomeSwiper from "./childComps/HomeSwiper";
 import RecommendView from "./childComps/RecommendView";
 import FeatureView from "./childComps/FeatureView";
+
+import NavBar from "components/common/navbar/NavBar";
+import TabControl from "components/content/tabControl/TabControl";
+
 //网络6.导出getHomeMultidata
 import { getHomeMultidata } from "network/home";
 
@@ -129,6 +134,7 @@ export default {
     HomeSwiper,
     RecommendView,
     FeatureView,
+    TabControl,
   },
   data() {
     return {
@@ -168,5 +174,10 @@ export default {
   right: 0;
   top: 0;
   z-index: 9;
+}
+
+.tab-control {
+  position: sticky;
+  top: 44px;
 }
 </style>
