@@ -35,6 +35,8 @@ export default {
     itemClick(index) {
       //判断谁处于点击状态，使点击状态的那个变色
       this.currentIndex = index;
+      //内部往外传事件，由TabControl传向Home,子传父，自定义事件
+      this.$emit("tabClick", index);
     },
   },
 };

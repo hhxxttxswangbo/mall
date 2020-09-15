@@ -29,11 +29,9 @@ export default {};
 .left,
 .right {
   width: 60px;
-
 }
 /* 中间部分占用所有剩余空间 */
 .center {
   flex: 1;
-
 }
 </style>

@@ -6,10 +6,12 @@
       <div slot="center">购物街</div>
     </nav-bar>
     <!-- 第一个:banners是HomeSwiper（子组件） props中的名字，第二个banners是Home(父组件)中data的banners -->
+    <!-- v-on:tabClick="tabClick"  自定义事件，子传父，从TabControl传到Home -->
     <home-swiper :banners="banners" />
     <recommend-view :recommends="recommends" />
     <feature-view />
-    <tab-control class="tab-control" :titles="['流行','新款','精选']" />
+    <tab-control class="tab-control" :titles="['流行','新款','精选']" v-on:tabClick="tabClick" />
+    <goods-list :goods="showGoods" />
 
     <ul>
       <li>列表1</li>
@@ -123,9 +125,10 @@ import FeatureView from "./childComps/FeatureView";
 
 import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
+import GoodsList from "components/content/goods/GoodsList";
 
 //网络6.导出getHomeMultidata
-import { getHomeMultidata } from "network/home";
+import { getHomeMultidata, getHomeGoods } from "network/home";
 
 export default {
   name: "Home",
@@ -135,6 +138,7 @@ export default {
     RecommendView,
     FeatureView,
     TabControl,
+    GoodsList,
   },
   data() {
     return {
@@ -142,19 +146,66 @@ export default {
       // result: null,
       banners: [],
       recommends: [],
+      goods: {
+        pop: { page: 0, list: [] },
+        new: { page: 0, list: [] },
+        sell: { page: 0, list: [] },
+      },
+      currentType: "pop",
     };
+  },
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list;
+    },
   },
   created() {
     //组件创建完毕立即发送网络请求，添加生命周期函数
-    //1.请求多个数据
-    //网络7.getHomeMultidata()调用函数，getHomeMultidata().then拿到数据
-    getHomeMultidata().then((res) => {
-      console.log(res);
-      //网络8.将结果保存到data里的result中
-      // this.result = res;
-      this.banners = res.data.banner.list;
-      this.recommends = res.data.recommend.list;
-    });
+    //1.请求轮播图数据
+    this.getHomeMultidata();
+
+    //2.请求商品所有数据
+    this.getHomeGoods("pop");
+    this.getHomeGoods("new");
+    this.getHomeGoods("sell");
+  },
+  methods: {
+    //事件监听相关方法
+    tabClick(index) {
+      // console.log(index);
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+      }
+    },
+
+    //网络请求相关方法
+    getHomeMultidata() {
+      //网络7.getHomeMultidata()调用函数，getHomeMultidata().then拿到数据
+      getHomeMultidata().then((res) => {
+        console.log(res);
+        //网络8.将结果保存到data里的result中
+        // this.result = res;
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
+      });
+    },
+    getHomeGoods(type) {
+      //定义页数
+      const page = this.goods[type].page + 1;
+      getHomeGoods(type, page).then((res) => {
+        //将一个数组放在另一个数组中的方法
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1;
+        // console.log(res);
+      });
+    },
   },
 };
 </script>
@@ -179,5 +230,6 @@ export default {
 .tab-control {
   position: sticky;
   top: 44px;
+  z-index: 9;
 }
 </style>
