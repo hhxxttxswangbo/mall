@@ -6,7 +6,7 @@
       <div slot="center">购物街</div>
     </nav-bar>
     <!-- scroll利用Better-scroll更好滚动 -->
-    <scroll class="content">
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <!-- 第一个:banners是HomeSwiper（子组件） props中的名字，第二个banners是Home(父组件)中data的banners -->
       <home-swiper :banners="banners" />
       <recommend-view :recommends="recommends" />
@@ -15,6 +15,7 @@
       <tab-control class="tab-control" :titles="['流行','新款','精选']" v-on:tabClick="tabClick" />
       <goods-list :goods="showGoods" />
     </scroll>
+    <back-top @click.native="backClick" v-show="isShowBackTop" />
   </div>
 </template>
 
@@ -27,6 +28,7 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
+import BackTop from "components/content/backTop/BackTop";
 
 //网络6.导出getHomeMultidata
 import { getHomeMultidata, getHomeGoods } from "network/home";
@@ -41,6 +43,7 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
+    BackTop,
   },
   data() {
     return {
@@ -54,6 +57,7 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
+      isShowBackTop: false,
     };
   },
   computed: {
@@ -85,6 +89,13 @@ export default {
         case 2:
           this.currentType = "sell";
       }
+    },
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0, 500);
+    },
+    contentScroll(position) {
+      // console.log(position);
+      this.isShowBackTop = -position.y > 1000;
     },
 
     //网络请求相关方法
