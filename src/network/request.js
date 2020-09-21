@@ -4,7 +4,7 @@ import axios from 'axios'
 export function request(config) {
   // 网络1.创建axios的实例
   const instance = axios.create({
-    baseURL: 'http://localhost:8080/',
+    baseURL: 'http://',
     timeout: 5000
   })
 

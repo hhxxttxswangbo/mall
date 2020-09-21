@@ -6,7 +6,14 @@
       <div slot="center">购物街</div>
     </nav-bar>
     <!-- scroll利用Better-scroll更好滚动 -->
-    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="contentScroll"
+      :pull-up-load="true"
+      @pullingUp="loadMore"
+    >
       <!-- 第一个:banners是HomeSwiper（子组件） props中的名字，第二个banners是Home(父组件)中data的banners -->
       <home-swiper :banners="banners" />
       <recommend-view :recommends="recommends" />
@@ -32,6 +39,7 @@ import BackTop from "components/content/backTop/BackTop";
 
 //网络6.导出getHomeMultidata
 import { getHomeMultidata, getHomeGoods } from "network/home";
+import { debounce } from "common/utils";
 
 export default {
   name: "Home",
@@ -75,6 +83,15 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+
+  mounted() {
+    //3.监听item中图片加载完成
+    const refresh = debounce(this.$refs.scroll.refresh, 50);
+    this.$bus.$on("itemImageLoad", () => {
+      refresh();
+    });
+  },
+
   methods: {
     //事件监听相关方法
     tabClick(index) {
@@ -97,6 +114,9 @@ export default {
       // console.log(position);
       this.isShowBackTop = -position.y > 1000;
     },
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
 
     //网络请求相关方法
     getHomeMultidata() {
@@ -117,6 +137,9 @@ export default {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
         // console.log(res);
+
+        //完成了上拉加载更多
+        this.$refs.scroll.finishPullUp();
       });
     },
   },
