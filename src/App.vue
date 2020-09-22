@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <router-view />
+    <keep-alive>
+      <router-view />
+    </keep-alive>
+
     <!-- 使用main-tab-ba -->
     <main-tab-bar></main-tab-bar>
   </div>

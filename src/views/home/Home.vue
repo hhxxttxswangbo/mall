@@ -15,11 +15,15 @@
       @pullingUp="loadMore"
     >
       <!-- 第一个:banners是HomeSwiper（子组件） props中的名字，第二个banners是Home(父组件)中data的banners -->
-      <home-swiper :banners="banners" />
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad" />
       <recommend-view :recommends="recommends" />
       <feature-view />
       <!-- v-on:tabClick="tabClick"  自定义事件 子传父，从TabControl传到Home -->
-      <tab-control class="tab-control" :titles="['流行','新款','精选']" v-on:tabClick="tabClick" />
+      <tab-control
+        :titles="['流行','新款','精选']"
+        v-on:tabClick="tabClick"
+        ref="tabControl"
+      />
       <goods-list :goods="showGoods" />
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop" />
@@ -66,6 +70,8 @@ export default {
       },
       currentType: "pop",
       isShowBackTop: false,
+      tabOffsetTop: 0,
+      isTabFixed: false,
     };
   },
   computed: {
@@ -85,7 +91,7 @@ export default {
   },
 
   mounted() {
-    //3.监听item中图片加载完成
+    //1.监听item中图片加载完成
     const refresh = debounce(this.$refs.scroll.refresh, 50);
     this.$bus.$on("itemImageLoad", () => {
       refresh();
@@ -113,9 +119,13 @@ export default {
     contentScroll(position) {
       // console.log(position);
       this.isShowBackTop = -position.y > 1000;
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
       this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
     },
 
     //网络请求相关方法
@@ -164,12 +174,6 @@ export default {
   z-index: 9;
 }
 
-.tab-control {
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
-
 .content {
   position: absolute;
   top: 44px;
@@ -177,4 +181,6 @@ export default {
   left: 0;
   right: 0;
 }
+
+
 </style>
