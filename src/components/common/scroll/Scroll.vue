@@ -39,7 +39,7 @@ export default {
     //3.监听scroll滚动到底部
     if (this.pullUpLoad) {
       this.scroll.on("pullingUp", () => {
-        this.$emit('pullingUp')
+        this.$emit("pullingUp");
       });
     }
   },
@@ -51,9 +51,9 @@ export default {
     refresh() {
       this.scroll && this.scroll.refresh();
     },
-    finishPullUp(){
+    finishPullUp() {
       this.scroll && this.scroll.finishPullUp();
-    }
+    },
   },
 };
 </script>
